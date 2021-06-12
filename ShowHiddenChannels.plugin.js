@@ -791,6 +791,25 @@ module.exports = (_ => {
     }
 
       onChannelContextMenu(e) {
+        // Channel Viewer
+        if (e.instance.props.channel) {
+					if (e.instance.props.channel.id.endsWith("hidden") && e.instance.props.channel.type == BDFDB.DiscordConstants.ChannelTypes.GUILD_CATEGORY) {
+						let [children, index] = BDFDB.ReactUtils.findParent(e.returnvalue, {name: "ChannelMuteItem"});
+						if (index > -1) children.splice(index, 1);
+					}
+					let isHidden = this.isChannelHidden(e.instance.props.channel.id);
+					if (isHidden || this.settings.general.showForNormal) {
+						let [children, index] = BDFDB.ContextMenuUtils.findItem(e.returnvalue, {id: "mark-channel-read", group: true});
+						children.splice(index > -1 ? index + 1 : 0, 0, BDFDB.ContextMenuUtils.createItem(BDFDB.LibraryComponents.MenuItems.MenuGroup, {
+							children: BDFDB.ContextMenuUtils.createItem(BDFDB.LibraryComponents.MenuItems.MenuItem, {
+								label: BDFDB.LanguageUtils.LanguageStrings.CHANNEL + " " + BDFDB.LanguageUtils.LanguageStrings.ACCESSIBILITY,
+								id: BDFDB.ContextMenuUtils.createItemId(this.name, "channelAccessibility"),
+                action: _ => this.openAccessModal(e.instance.props.channel, !isHidden)
+							})
+						}));
+					}
+				}
+
         // Permissions viewer
 				if (e.instance.props.channel) {
 					if (e.instance.props.channel.id.endsWith("hidden") && e.instance.props.channel.type == BDFDB.DiscordConstants.ChannelTypes.GUILD_CATEGORY) {
@@ -814,25 +833,6 @@ module.exports = (_ => {
 						}));
 					}
         }
-
-        // Channel Viewer
-        if (e.instance.props.channel) {
-					if (e.instance.props.channel.id.endsWith("hidden") && e.instance.props.channel.type == BDFDB.DiscordConstants.ChannelTypes.GUILD_CATEGORY) {
-						let [children, index] = BDFDB.ReactUtils.findParent(e.returnvalue, {name: "ChannelMuteItem"});
-						if (index > -1) children.splice(index, 1);
-					}
-					let isHidden = this.isChannelHidden(e.instance.props.channel.id);
-					if (isHidden || this.settings.general.showForNormal) {
-						let [children, index] = BDFDB.ContextMenuUtils.findItem(e.returnvalue, {id: "mark-channel-read", group: true});
-						children.splice(index > -1 ? index + 1 : 0, 0, BDFDB.ContextMenuUtils.createItem(BDFDB.LibraryComponents.MenuItems.MenuGroup, {
-							children: BDFDB.ContextMenuUtils.createItem(BDFDB.LibraryComponents.MenuItems.MenuItem, {
-								label: BDFDB.LanguageUtils.LanguageStrings.CHANNEL + " " + BDFDB.LanguageUtils.LanguageStrings.ACCESSIBILITY,
-								id: BDFDB.ContextMenuUtils.createItemId(this.name, "channelAccessibility"),
-                action: _ => this.openAccessModal(e.instance.props.channel, !isHidden)
-							})
-						}));
-					}
-				}
 			}
 
 			onGuildContextMenu (e) {
