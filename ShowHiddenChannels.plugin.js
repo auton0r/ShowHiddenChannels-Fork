@@ -790,7 +790,8 @@ module.exports = (_ => {
         return modal;
     }
 
-			onChannelContextMenu (e) {
+      onChannelContextMenu(e) {
+        // Permissions viewer
 				if (e.instance.props.channel) {
 					if (e.instance.props.channel.id.endsWith("hidden") && e.instance.props.channel.type == BDFDB.DiscordConstants.ChannelTypes.GUILD_CATEGORY) {
 						let [children, index] = BDFDB.ReactUtils.findParent(e.returnvalue, {name: "ChannelMuteItem"});
@@ -802,13 +803,32 @@ module.exports = (_ => {
 						children.splice(index > -1 ? index + 1 : 0, 0, BDFDB.ContextMenuUtils.createItem(BDFDB.LibraryComponents.MenuItems.MenuGroup, {
 							children: BDFDB.ContextMenuUtils.createItem(BDFDB.LibraryComponents.MenuItems.MenuItem, {
 								label: BDFDB.LanguageUtils.LanguageStrings.PERMISSIONS,
-								id: BDFDB.ContextMenuUtils.createItemId(this.name, "permissions"),
+								id: BDFDB.ContextMenuUtils.createItemId(this.name, "channelPermissions"),
                 action: () => {
                   const channel = e.instance.props.channel;
                   if (!Object.keys(channel.permissionOverwrites).length) return Toasts.info(`#${channel.name} has no permission overrides`);
                   this.showModal(this.createModalChannel(channel.name, channel, e.instance.props.guild));
                 }
                 //action: _ => this.openAccessModal(e.instance.props.channel, !isHidden)
+							})
+						}));
+					}
+        }
+
+        // Channel Viewer
+        if (e.instance.props.channel) {
+					if (e.instance.props.channel.id.endsWith("hidden") && e.instance.props.channel.type == BDFDB.DiscordConstants.ChannelTypes.GUILD_CATEGORY) {
+						let [children, index] = BDFDB.ReactUtils.findParent(e.returnvalue, {name: "ChannelMuteItem"});
+						if (index > -1) children.splice(index, 1);
+					}
+					let isHidden = this.isChannelHidden(e.instance.props.channel.id);
+					if (isHidden || this.settings.general.showForNormal) {
+						let [children, index] = BDFDB.ContextMenuUtils.findItem(e.returnvalue, {id: "mark-channel-read", group: true});
+						children.splice(index > -1 ? index + 1 : 0, 0, BDFDB.ContextMenuUtils.createItem(BDFDB.LibraryComponents.MenuItems.MenuGroup, {
+							children: BDFDB.ContextMenuUtils.createItem(BDFDB.LibraryComponents.MenuItems.MenuItem, {
+								label: BDFDB.LanguageUtils.LanguageStrings.CHANNEL + " " + BDFDB.LanguageUtils.LanguageStrings.ACCESSIBILITY,
+								id: BDFDB.ContextMenuUtils.createItemId(this.name, "channelAccessibility"),
+                action: _ => this.openAccessModal(e.instance.props.channel, !isHidden)
 							})
 						}));
 					}
@@ -1068,7 +1088,7 @@ module.exports = (_ => {
 									})
 								]).flat(10).filter(n => n)
 						}),
-						BDFDB.ReactUtils.createElement(BDFDB.LibraryComponents.ModalComponents.ModalTabContent, {
+						/*BDFDB.ReactUtils.createElement(BDFDB.LibraryComponents.ModalComponents.ModalTabContent, {
 							tab: this.labels.modal_allowed,
 							children: allowedElements.length ? allowedElements :
 								BDFDB.ReactUtils.createElement(BDFDB.LibraryComponents.MessagesPopoutComponents.EmptyStateBottom, {
@@ -1083,7 +1103,7 @@ module.exports = (_ => {
 									msg: BDFDB.LanguageUtils.LanguageStrings.AUTOCOMPLETE_NO_RESULTS_HEADER,
 									image: lightTheme ? "/assets/9b0d90147f7fab54f00dd193fe7f85cd.svg" : "/assets/308e587f3a68412f137f7317206e92c2.svg"
 								})
-						})
+						})*/
 					]
 				});
 			}
